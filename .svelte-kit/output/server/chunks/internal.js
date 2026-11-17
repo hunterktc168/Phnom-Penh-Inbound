@@ -309,7 +309,7 @@ var options = {
 		app: ({ head, body, assets, nonce, env }) => "<!doctype html>\n<html lang=\"en\">\n	<head>\n		<meta charset=\"utf-8\" />\n		<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n		<meta name=\"theme-color\" content=\"#f3efe7\" />\n		<link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\" />\n		<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\" />\n		<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin />\n		<link\n			href=\"https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,480;6..72,560;6..72,650&family=Outfit:wght@400;500;600&display=swap\"\n			rel=\"stylesheet\"\n		/>\n		" + head + "\n	</head>\n	<body data-sveltekit-preload-data=\"hover\">\n		<div style=\"display: contents\">" + body + "</div>\n	</body>\n</html>\n",
 		error: error_template_default
 	},
-	version_hash: "qdsutv"
+	version_hash: "189096b"
 };
 async function get_hooks() {
 	let handle;

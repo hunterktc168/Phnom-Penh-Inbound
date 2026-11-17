@@ -1,0 +1,1 @@
+import{B as e,E as t,j as n,u as r,z as i}from"../chunks/CMssfgCF.js";import"../chunks/xihTtKlq.js";import{t as a}from"../chunks/EMfI_r2W.js";function o(o,s){e(s,!0),r(`1ku5idc`,e=>{t(()=>{n.title=`${s.data.guide.title??``} — Inbound`})}),a(o,{get guide(){return s.data.guide},get cta(){return s.data.cta},pillarLabel:`Visit`}),i()}export{o as component};

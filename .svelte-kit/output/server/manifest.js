@@ -10,7 +10,7 @@ return {
 	assets: new Set(["cowork.jpg","favicon.svg","riverside.jpg"]),
 	mimeTypes: {".jpg":"image/jpeg",".svg":"image/svg+xml"},
 	_: {
-		client: {start:"_app/immutable/entry/start.KiBwRFb4.js",app:"_app/immutable/entry/app.CPTP0oLE.js",imports:["_app/immutable/entry/start.KiBwRFb4.js","_app/immutable/chunks/CHEqYmoQ.js","_app/immutable/chunks/CMssfgCF.js","_app/immutable/entry/app.CPTP0oLE.js","_app/immutable/chunks/CMssfgCF.js","_app/immutable/chunks/xihTtKlq.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
+		client: {start:"_app/immutable/entry/start.TiXuVDNH.js",app:"_app/immutable/entry/app.BZOfOuvL.js",imports:["_app/immutable/entry/start.TiXuVDNH.js","_app/immutable/chunks/CbWlleKE.js","_app/immutable/chunks/CMssfgCF.js","_app/immutable/entry/app.BZOfOuvL.js","_app/immutable/chunks/CMssfgCF.js","_app/immutable/chunks/xihTtKlq.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
 		nodes: [
 			__memo(() => import('./nodes/0.js')),
 			__memo(() => import('./nodes/1.js')),

@@ -1,14 +1,13 @@
-// Server-rendered output for Vercel: pages read the database through server
+// Server-rendered output for Netlify: pages read the database through server
 // loads and `/api/track` is a POST endpoint, neither of which a static adapter
-// can produce. (The workspace deploys to Vercel; `vercel.json` pins the install.)
-import adapter from '@sveltejs/adapter-vercel';
+// can produce. `netlify.toml` pins the publish directory (`build`) so the
+// Netlify UI's stale `dist/client` setting can't win.
+import adapter from '@sveltejs/adapter-netlify';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	kit: {
-		// Pin the Vercel function runtime: the sandbox builds on a Node version
-		// (v24) newer than the adapter allows locally, so state it explicitly.
-		adapter: adapter({ runtime: 'nodejs22.x' }),
+		adapter: adapter(),
 		files: {
 			assets: 'frontend/static',
 			hooks: {

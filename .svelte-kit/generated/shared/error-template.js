@@ -1,0 +1,1 @@
+export default ({ status, message }) => "<!doctype html>\n<html lang=\"en\">\n\t<head>\n\t\t<meta charset=\"utf-8\" />\n\t\t<title>Error</title>\n\t</head>\n\t<body>\n\t\t<p>" + message + "</p>\n\t</body>\n</html>\n";

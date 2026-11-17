@@ -1,0 +1,62 @@
+{
+	"compilerOptions": {
+		"paths": {
+			"$lib": [
+				"../frontend/lib"
+			],
+			"$lib/*": [
+				"../frontend/lib/*"
+			],
+			"$app/types": [
+				"./types/index.d.ts"
+			]
+		},
+		"rootDirs": [
+			"..",
+			"./types"
+		],
+		"verbatimModuleSyntax": true,
+		"isolatedModules": true,
+		"lib": [
+			"esnext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"moduleResolution": "bundler",
+		"module": "esnext",
+		"noEmit": true,
+		"target": "esnext"
+	},
+	"include": [
+		"ambient.d.ts",
+		"env.d.ts",
+		"non-ambient.d.ts",
+		"./types/**/$types.d.ts",
+		"../vite.config.js",
+		"../vite.config.ts",
+		"../frontend/routes/**/*.js",
+		"../frontend/routes/**/*.ts",
+		"../frontend/routes/**/*.svelte",
+		"../frontend/lib/**/*.js",
+		"../frontend/lib/**/*.ts",
+		"../frontend/lib/**/*.svelte",
+		"../src/**/*.js",
+		"../src/**/*.ts",
+		"../src/**/*.svelte",
+		"../test/**/*.js",
+		"../test/**/*.ts",
+		"../test/**/*.svelte",
+		"../tests/**/*.js",
+		"../tests/**/*.ts",
+		"../tests/**/*.svelte"
+	],
+	"exclude": [
+		"../node_modules/**",
+		"../frontend/service-worker.js",
+		"../frontend/service-worker/**/*.js",
+		"../frontend/service-worker.ts",
+		"../frontend/service-worker/**/*.ts",
+		"../frontend/service-worker.d.ts",
+		"../frontend/service-worker/**/*.d.ts"
+	]
+}

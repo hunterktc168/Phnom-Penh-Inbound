@@ -1,0 +1,1 @@
+export { default as component } from "../../../../frontend/routes/live/[slug]/+page.svelte";

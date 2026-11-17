@@ -1,0 +1,37 @@
+{
+	"/": [
+		"frontend/routes/+page.server.ts",
+		"frontend/routes/+layout.ts",
+		"frontend/routes/+layout.server.ts",
+		"frontend/routes/+layout.ts",
+		"frontend/routes/+layout.server.ts"
+	],
+	"/api/track": [
+		"frontend/routes/api/track/+server.ts"
+	],
+	"/directory": [
+		"frontend/routes/directory/+page.server.ts",
+		"frontend/routes/+layout.ts",
+		"frontend/routes/+layout.server.ts"
+	],
+	"/live": [
+		"frontend/routes/live/+page.server.ts",
+		"frontend/routes/+layout.ts",
+		"frontend/routes/+layout.server.ts"
+	],
+	"/live/[slug]": [
+		"frontend/routes/live/[slug]/+page.server.ts",
+		"frontend/routes/+layout.ts",
+		"frontend/routes/+layout.server.ts"
+	],
+	"/visit": [
+		"frontend/routes/visit/+page.server.ts",
+		"frontend/routes/+layout.ts",
+		"frontend/routes/+layout.server.ts"
+	],
+	"/visit/[slug]": [
+		"frontend/routes/visit/[slug]/+page.server.ts",
+		"frontend/routes/+layout.ts",
+		"frontend/routes/+layout.server.ts"
+	]
+}

@@ -1,0 +1,229 @@
+﻿1. Type Definitions (src/app.d.ts)
+import type { Session, SupabaseClient, User } from '@supabase/supabase-js';
+
+
+declare global {
+  namespace App {
+    interface Locals {
+      supabase: SupabaseClient;
+      safeGetSession(): Promise<{ session: Session | null; user: User | null }>;
+    }
+    interface PageData {
+      session: Session | null;
+      user: User | null;
+    }
+  }
+}
+
+
+export {};
+
+
+2. Server Hooks (src/hooks.server.ts)
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+import { createServerClient } from '@supabase/ssr';
+import type { Handle } from '@sveltejs/kit';
+
+
+export const handle: Handle = async ({ event, resolve }) => {
+  event.locals.supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
+    cookies: {
+      getAll: () => event.cookies.getAll(),
+      setAll: (cookiesToSet) => {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          event.cookies.set(name, value, { ...options, path: '/' });
+        });
+      },
+    },
+  });
+
+
+  event.locals.safeGetSession = async () => {
+    const { data: { user }, error } = await event.locals.supabase.auth.getUser();
+    if (error || !user) {
+      return { session: null, user: null };
+    }
+
+
+    const { data: { session } } = await event.locals.supabase.auth.getSession();
+    return { session, user };
+  };
+
+
+  return resolve(event, {
+    filterSerializedResponseHeaders(name) {
+      return name === 'content-range' || name === 'x-supabase-api-version';
+    },
+  });
+};
+
+
+3. Root Layout Load (src/routes/+layout.server.ts)
+import type { LayoutServerLoad } from './$types';
+
+
+export const load: LayoutServerLoad = async ({ locals: { safeGetSession }, depends }) => {
+  depends('supabase:auth');
+  const { session, user } = await safeGetSession();
+  return {
+    session,
+    user,
+  };
+};
+
+
+4. Routing Layout Implementation
+A. Directory Listing & Filtering (src/routes/directory/+page.server.ts)
+Relying on database RLS for active/completeness/recency governance; filtering only on user input parameters.
+import type { PageServerLoad } from './$types';
+
+
+export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
+  const category = url.searchParams.get('category');
+  const generator = url.searchParams.get('generator');
+
+
+  let query = supabase
+    .from('venues')
+    .select('id, slug, name, category, verified_wifi_mbps, has_generator, price_tier, primary_photo_url, last_verified_at')
+    .order('completeness_score', { ascending: false });
+
+
+  if (category && category !== 'all') {
+    query = query.eq('category', category);
+  }
+  if (generator === 'true') {
+    query = query.eq('has_generator', true);
+  }
+
+
+  const { data: venues, error } = await query;
+
+
+  return {
+    venues: venues ?? [],
+    error: error ? error.message : null,
+  };
+};
+
+
+B. Dynamic Guide Spoke (src/routes/live/[slug]/+page.server.ts)
+Disambiguates multiple foreign keys to authors using !author_id.
+import { error } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
+
+
+export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
+  const { slug } = params;
+
+
+  const { data: guide, error: dbError } = await supabase
+    .from('guides')
+    .select('*, author:authors!author_id(name, avatar_url, bio)')
+    .eq('slug', slug)
+    .eq('pillar', 'live')
+    .eq('is_published', true)
+    .single();
+
+
+  if (dbError || !guide) {
+    throw error(404, 'Guide not found or unpublished');
+  }
+
+
+  return {
+    guide,
+  };
+};
+
+
+C. Secure Analytics Ingestion (src/routes/api/track/+server.ts)
+Properly preserves SvelteKit HTTP errors instead of swallowing them as generic 400s.
+// src/routes/api/track/+server.ts
+import { error, isHttpError, json } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
+
+
+const VALID_EVENT_NAMES = new Set([
+  'tool_started',
+  'tool_completed',
+  'export_requested',
+  'email_submitted',
+  'cta_click',
+  'cta_impression',
+  'directory_filter_used',
+  'map_opened',
+]);
+
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+
+export const POST: RequestHandler = async ({ request, locals: { supabase } }) => {
+  try {
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      throw error(400, 'Invalid JSON');
+    }
+
+
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      throw error(400, 'Invalid payload');
+    }
+
+
+    const { eventName, placementTag, ctaId, sessionId, metadata } = body as Record<string, unknown>;
+
+
+    if (typeof eventName !== 'string' || !VALID_EVENT_NAMES.has(eventName)) {
+      throw error(400, 'Invalid eventName');
+    }
+
+
+    if (placementTag !== undefined && placementTag !== null && typeof placementTag !== 'string') {
+      throw error(400, 'Invalid placementTag');
+    }
+
+
+    if (ctaId !== undefined && ctaId !== null && (typeof ctaId !== 'string' || !UUID_RE.test(ctaId))) {
+      throw error(400, 'Invalid ctaId');
+    }
+
+
+    if (sessionId !== undefined && sessionId !== null) {
+      if (typeof sessionId !== 'string' || new TextEncoder().encode(sessionId).length > 64) {
+        throw error(400, 'Invalid sessionId');
+      }
+    }
+
+
+    if (metadata !== undefined && metadata !== null) {
+      if (typeof metadata !== 'object' || Array.isArray(metadata)) {
+        throw error(400, 'Invalid metadata');
+      }
+    }
+
+
+    const { error: dbError } = await supabase.from('analytics_events').insert({
+      event_name: eventName,
+      placement_tag: (placementTag as string | null | undefined) ?? null,
+      cta_id: (ctaId as string | null | undefined) ?? null,
+      session_id: (sessionId as string | null | undefined) ?? null,
+      metadata: (metadata as Record<string, unknown> | null | undefined) ?? {},
+    });
+
+
+    if (dbError) {
+      console.error('Analytics insert error:', dbError);
+      throw error(500, 'Failed to record event');
+    }
+
+
+    return json({ success: true });
+  } catch (err) {
+    if (isHttpError(err)) throw err;
+    throw error(400, 'Invalid request payload');
+  }
+};
